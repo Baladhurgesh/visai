@@ -34,13 +34,17 @@ LAYER_GUIDE = """Candidate contract (layer kernel, MLX / Metal):
 class LayerBackend:
     name = "mlx-layer"
 
-    def __init__(self, adapter_key: str, cfg: dict, cls: str, captures: list[str], timeout_s: float = 420.0):
+    def __init__(self, adapter_key: str, cfg: dict, cls: str, captures: list[str], timeout_s: float = 420.0,
+                 model_id: str | None = None):
         self.adapter_key, self.cfg, self.cls, self.captures, self.timeout_s = adapter_key, cfg, cls, captures, timeout_s
+        self.model_id = model_id
 
     def _run(self, extra: list[str]) -> dict[str, Any]:
         env = dict(os.environ, VISAI_HIDDEN_SEED=str(secrets.randbelow(2**31 - 1) + 1))
         cmd = [sys.executable, "-m", "visai.verify.run_module", "--adapter", self.adapter_key,
                "--config", json.dumps(self.cfg), "--cls", self.cls, "--captures", ",".join(self.captures), *extra]
+        if self.model_id:
+            cmd += ["--model-id", self.model_id]
         try:
             proc = subprocess.run(cmd, capture_output=True, text=True, timeout=self.timeout_s, env=env, cwd=ROOT)
         except subprocess.TimeoutExpired:

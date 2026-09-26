@@ -20,10 +20,13 @@ function layerOf(target: string, key: string): string | null {
 
 export async function GET(_req: Request, ctx: { params: Promise<{ key: string }> }) {
   const { key } = await ctx.params;
-  const m = MODELS[key];
-  if (!m) return NextResponse.json({ error: "unknown model" }, { status: 404 });
-
   const allRuns = await find("runs", {}, { sort: { started: 1 } });
+  let m = MODELS[key];
+  if (!m) {
+    const r = [...allRuns].reverse().find((x) => x.adapter === key);
+    m = { id: r?.model || key, label: r?.model || key, quality: "perplexity", unit: "decode tok/s" };
+  }
+
   const runs = allRuns.filter(
     (r) => r.adapter === key || r.model === m.id || String(r.target || "").startsWith(m.id) ||
       (key !== "qwen" && r.model === "parakeet+nemotron-diar"),

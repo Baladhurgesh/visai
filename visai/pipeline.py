@@ -123,7 +123,7 @@ def _layer_loop(run_id: str, adapter: Adapter, row: dict, captures: list[str], s
                 max_iters: int, patience: int, max_minutes: float, say: Callable,
                 target_speedup: float | None = None, initial_best: dict | None = None) -> dict[str, Any]:
     target = f"{adapter.key}:{row['name']}@mlx:{hardware}"
-    backend = LayerBackend(adapter.key, {}, row["class"], captures)
+    backend = LayerBackend(adapter.key, {}, row["class"], captures, model_id=adapter.model_id)
     base = backend.baseline()
     if not base:
         return {"target": target, "error": "baseline failed", "best": None, "trials": []}
@@ -245,14 +245,17 @@ def optimize_pipeline(
     min_layer_pct: float = 3.0,
     target_speedup: float | None = None,
     resume_from: str | None = None,
+    model_id: str | None = None,
+    hardware_label: str | None = None,
     on_event: Callable[[str, dict], None] | None = None,
 ) -> dict[str, Any]:
     say = on_event or (lambda s, d: None)
-    adapter = get_adapter(key)
+    adapter = get_adapter(key, model_id=model_id)
+    key = adapter.key
     hw = probe()
     hardware = hw.get("chip", "apple-silicon")
     run_id = f"{utc_stamp()}_pipeline_{key}"
-    budgets = dict(DEFAULT_BUDGETS[key])
+    budgets = dict(DEFAULT_BUDGETS.get(key) or DEFAULT_BUDGETS["qwen"])
     if quality_budget_rel is not None:
         budgets = {"quality_budget_rel": quality_budget_rel}
     if quality_budget_abs is not None:
@@ -260,7 +263,9 @@ def optimize_pipeline(
     qgate = GateConfig(rel=0.0, **budgets)
     model_target = f"{adapter.model_id}:e2e@mlx:{hardware}"
     mem.start_run(run_id, kind="pipeline", target=model_target, model=adapter.model_id, adapter=key, hardware=hardware,
-                  quality_budget=qgate.describe(), target_speedup=target_speedup)
+                  quality_budget=qgate.describe(), target_speedup=target_speedup,
+                  hardware_requested=hardware_label or f"this Mac ({hw.get('chip_name', hardware)}, MLX/Metal)",
+                  task=adapter.task, unit=adapter.unit, quality_metric=adapter.quality_name)
     t_start = time.time()
 
     # 1) BASELINE

@@ -237,6 +237,10 @@ def run(
     config_minutes: float = typer.Option(30.0),
     target_speedup: Optional[float] = typer.Option(None, help="stop a layer / the model level once this speedup is reached, e.g. 2.0"),
     resume_from: Optional[str] = typer.Option(None, help="reuse profile, captures and layer results from a previous run id"),
+    model_id: Optional[str] = typer.Option(None, help="Hugging Face id of any mlx-lm causal LM (use with --model llm)"),
+    hardware: str = typer.Option("local", help="local (this Mac, MLX/Metal); remote CUDA backends are not configured"),
+    quality_budget_rel: Optional[float] = typer.Option(None, help="allowed relative quality drop, e.g. 0.01 = 1% (LLMs)"),
+    quality_budget_abs: Optional[float] = typer.Option(None, help="allowed absolute quality drop, e.g. 0.003 WER"),
 ) -> None:
     """Full pipeline: baseline -> layer profile -> layer kernel loops -> integrate -> model-level -> compare."""
     from rich.console import Console
@@ -252,13 +256,17 @@ def run(
         else:
             con.print(f"[bold cyan]{step}[/bold cyan] {data}")
 
+    if hardware != "local":
+        raise typer.BadParameter("only hardware=local (this Mac, MLX/Metal) is configured; the Modal CUDA backend is not set up")
     keys = ["parakeet", "diar", "qwen"] if model == "all" else [model]
     reports = []
     for k in keys:
         rep = optimize_pipeline(k, top_layers=top_layers, max_layer_iters=max_layer_iters, layer_patience=layer_patience,
                                 layer_minutes=layer_minutes, max_config_iters=max_config_iters,
                                 config_patience=config_patience, config_minutes=config_minutes,
-                                target_speedup=target_speedup, resume_from=resume_from, on_event=on_event)
+                                target_speedup=target_speedup, resume_from=resume_from, model_id=model_id,
+                                quality_budget_rel=quality_budget_rel, quality_budget_abs=quality_budget_abs,
+                                on_event=on_event)
         print_pipeline_report(rep)
         reports.append(rep)
     dump({"reports": reports})

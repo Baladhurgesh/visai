@@ -110,9 +110,10 @@ def main() -> int:
     p.add_argument("--captures", required=True, help="comma-separated capture stems")
     p.add_argument("--candidate", type=Path)
     p.add_argument("--mode", choices=("gate", "bench", "all"), default="all")
+    p.add_argument("--model-id", default=None)
     a = p.parse_args()
 
-    adapter = get_adapter(a.adapter)
+    adapter = get_adapter(a.adapter, model_id=a.model_id)
     h = adapter.load(adapter.model_cfg(json.loads(a.config)))
     modules = dict(adapter.root(h).named_modules())
     orig = resolve_class(a.cls).__call__

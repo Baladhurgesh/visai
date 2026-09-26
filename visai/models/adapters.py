@@ -113,15 +113,19 @@ class Adapter:
 
 
 class QwenAdapter(Adapter):
+    """Any mlx-lm causal LM (Qwen, Llama, Mistral, ...). `key` names the model in memory and the dashboard."""
+
     key = "qwen"
     task = "causal-lm"
     quality_name = "perplexity"
     unit = "decode tok/s"
 
-    def __init__(self, model_id: str = "Qwen/Qwen3-0.6B"):
+    def __init__(self, model_id: str = "Qwen/Qwen3-0.6B", key: str | None = None):
         from visai.deploy.mlx_search import SEARCH_SPACE_DOC
 
         self.model_id = model_id
+        if key:
+            self.key = key
         self.search_space_doc = SEARCH_SPACE_DOC.replace(
             "- kernels: list of promoted kernel ops to patch in, e.g. [\"add_rmsnorm\"] (only ops with a promoted winner)\n", ""
         )
@@ -279,7 +283,19 @@ class DiarAdapter(Adapter):
 ADAPTERS = {"qwen": QwenAdapter, "parakeet": ParakeetAdapter, "diar": DiarAdapter}
 
 
-def get_adapter(key: str) -> Adapter:
-    if key not in ADAPTERS:
-        raise KeyError(f"unknown model {key}; have {sorted(ADAPTERS)}")
-    return ADAPTERS[key]()
+def llm_key(model_id: str) -> str:
+    """Stable memory/dashboard key for a custom mlx-lm model, e.g. Qwen/Qwen3-1.7B -> llm-qwen3-1-7b."""
+    import re
+
+    name = model_id.split("/")[-1].lower()
+    return "llm-" + re.sub(r"[^a-z0-9]+", "-", name).strip("-")
+
+
+def get_adapter(key: str, model_id: str | None = None) -> Adapter:
+    if key in ADAPTERS and not (key == "qwen" and model_id and model_id != "Qwen/Qwen3-0.6B"):
+        return ADAPTERS[key]()
+    if key == "llm" or key.startswith("llm-") or model_id:
+        if not model_id:
+            raise KeyError(f"model {key} needs --model-id (a Hugging Face mlx-lm model id)")
+        return QwenAdapter(model_id, key=key if key.startswith("llm-") else llm_key(model_id))
+    raise KeyError(f"unknown model {key}; have {sorted(ADAPTERS)} or llm --model-id <hf id>")

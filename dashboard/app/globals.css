@@ -47,6 +47,17 @@ tr.click:hover { background: #161c24; }
 .flow span { padding: 3px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--text); background: #161b22; }
 h3.sub { margin: 14px 0 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
 h2.section { margin: 6px 0 -4px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.form { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 18px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field span { color: var(--muted); font-size: 12px; }
+.field input, .field select { background: #0d1117; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; font-size: 14px; }
+.field select option:disabled { color: #56606b; }
+button { background: #21262d; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button:hover { border-color: #8b98a5; }
+button.primary { background: #238636; border-color: #2ea043; font-weight: 600; padding: 8px 16px; }
+button:disabled { opacity: 0.5; cursor: default; }
+.job { border-top: 1px solid var(--line); padding: 10px 0; }
+.bad-insight { border-left-color: var(--bad); background: #2a1215; }
 details { margin-top: 8px; }
 summary { cursor: pointer; color: var(--accent); }
 pre.lessons { white-space: pre-wrap; max-height: 360px; overflow: auto; margin: 0; color: #c9d1d9; }

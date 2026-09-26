@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Architecture from "./Architecture";
 import ModelView from "./ModelView";
+import Optimize from "./Optimize";
 
 const TABS = [
+  { key: "optimize", label: "+ Optimize a model" },
   { key: "architecture", label: "Architecture & tools" },
   { key: "overview", label: "Overview & memory" },
   { key: "qwen", label: "Qwen3-0.6B" },
@@ -162,7 +164,7 @@ export default function Page() {
   };
   useEffect(() => {
     const t = new URLSearchParams(window.location.search).get("tab");
-    if (t && TABS.some((x) => x.key === t)) setTabState(t);
+    if (t) setTabState(t);
   }, []);
   const [ov, setOv] = useState<Doc | null>(null);
   const [sel, setSel] = useState<string | null>(null);
@@ -210,11 +212,23 @@ export default function Page() {
         <span className="pill" style={{ marginLeft: "auto" }}>memory: {!ov ? "…" : ov.backend === "atlas" ? "MongoDB Atlas" : "local fallback"}</span>
       </header>
       <nav className="tabs">
-        {TABS.map((t) => (
+        {[
+          ...TABS,
+          ...Array.from(
+            new Map<string, Doc>(
+              (ov?.runs || [])
+                .filter((r: Doc) => String(r.adapter || "").startsWith("llm-"))
+                .map((r: Doc): [string, Doc] => [r.adapter, { key: r.adapter, label: String(r.model || r.adapter).split("/").pop() }]),
+            ).values(),
+          ),
+          ...(tab.startsWith("llm-") && !(ov?.runs || []).some((r: Doc) => r.adapter === tab) ? [{ key: tab, label: tab }] : []),
+        ].map((t: Doc) => (
           <button key={t.key} className={tab === t.key ? "active" : ""} onClick={() => setTab(t.key)}>{t.label}</button>
         ))}
       </nav>
-      {tab === "architecture" ? (
+      {tab === "optimize" ? (
+        <main><Optimize onOpenModel={(k) => setTab(k)} /></main>
+      ) : tab === "architecture" ? (
         <main><Architecture /></main>
       ) : tab !== "overview" ? (
         <main><ModelView modelKey={tab} /></main>

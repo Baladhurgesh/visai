@@ -44,6 +44,28 @@ export function envValue(name: string): string {
   return (env[name] || "").trim();
 }
 
+export const REPO_ROOT = ROOT;
+
+export async function insertOne(coll: string, doc: Doc): Promise<void> {
+  if (URI) {
+    await (await atlas()).collection(coll).insertOne({ ...doc });
+    return;
+  }
+  const dir = path.join(ROOT, "out", "localdb");
+  fs.mkdirSync(dir, { recursive: true });
+  fs.appendFileSync(path.join(dir, `${coll}.jsonl`), JSON.stringify({ _id: doc._id || String(Date.now()), ...doc }) + "\n");
+}
+
+export async function updateOne(coll: string, filter: Doc, set: Doc): Promise<void> {
+  if (URI) {
+    await (await atlas()).collection(coll).updateOne(filter, { $set: set });
+    return;
+  }
+  const file = path.join(ROOT, "out", "localdb", `${coll}.jsonl`);
+  const rows = readLocal(coll).map((d) => (matches(d, filter) ? { ...d, ...set } : d));
+  fs.writeFileSync(file, rows.map((r) => JSON.stringify(r)).join("\n") + "\n");
+}
+
 export async function count(coll: string): Promise<number> {
   if (URI) return (await atlas()).collection(coll).estimatedDocumentCount();
   return readLocal(coll).length;
