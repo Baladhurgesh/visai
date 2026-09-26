@@ -21,7 +21,7 @@ main { padding: 20px 28px; display: grid; gap: 18px; }
 .panel h2 { margin: 0 0 10px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
 .stats { display: flex; gap: 24px; flex-wrap: wrap; }
 .stat b { display: block; font-size: 22px; }
-.stat span { color: var(--muted); font-size: 12px; }
+.stat > span { color: var(--muted); font-size: 12px; }
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 500; font-size: 12px; }

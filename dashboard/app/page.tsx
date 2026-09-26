@@ -4,8 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Architecture from "./Architecture";
 import ModelView from "./ModelView";
 import Optimize from "./Optimize";
+import Minutes from "./Minutes";
+import Results from "./Results";
 
 const TABS = [
+  { key: "results", label: "Results" },
+  { key: "minutes", label: "Minutes benchmark" },
   { key: "optimize", label: "+ Optimize a model" },
   { key: "architecture", label: "Architecture & tools" },
   { key: "overview", label: "Overview & memory" },
@@ -157,7 +161,7 @@ function PipelineView({ run }: { run: Doc }) {
 }
 
 export default function Page() {
-  const [tab, setTabState] = useState("qwen");
+  const [tab, setTabState] = useState("results");
   const setTab = (t: string) => {
     setTabState(t);
     window.history.replaceState(null, "", `?tab=${t}`);
@@ -226,7 +230,11 @@ export default function Page() {
           <button key={t.key} className={tab === t.key ? "active" : ""} onClick={() => setTab(t.key)}>{t.label}</button>
         ))}
       </nav>
-      {tab === "optimize" ? (
+      {tab === "results" ? (
+        <main><Results /></main>
+      ) : tab === "minutes" ? (
+        <main><Minutes /></main>
+      ) : tab === "optimize" ? (
         <main><Optimize onOpenModel={(k) => setTab(k)} /></main>
       ) : tab === "architecture" ? (
         <main><Architecture /></main>

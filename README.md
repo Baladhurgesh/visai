@@ -24,6 +24,62 @@ What produced them:
 
 The pattern across all three is the lesson kernel-forge found on CUDA: **isolated layer speedups rarely survive end to end**. That is why Visai gates every kernel on whole-model paired measurements before keeping it.
 
+The dashboard's **Results** tab shows all of this live from Atlas.
+
+## Detailed results
+
+### Layer kernels: isolated vs whole model
+
+"Isolated" is the candidate against the model's own layer on captured real activations (worse of two runs). "Whole model" is the paired A/B end-to-end check against the state before adding that kernel.
+
+| Model | Layer (self time) | Best isolated | Whole model (paired) | Decision |
+|---|---|---|---|---|
+| Parakeet | LSTM (10.1%) | **4.61x** | 1.08x | kept |
+| Parakeet | Conv1d (7.0%) | 1.84x | 1.06x | kept |
+| Parakeet | LayerNorm (5.5%) | 1.53x | 0.89x | reverted |
+| Qwen3-0.6B | RMSNorm (15.2%) | 1.09x | 1.14x | kept |
+| Qwen3-0.6B | RoPE (7.6%) | 1.02x | 1.37x | kept |
+| Diarization | LayerNorm (7.2%) | 1.06x | 1.01x | kept |
+| Diarization | Attention (15.7%) | 1.03x | — | layer only |
+
+All kept kernels measured together against stock came out at **0.94x** for Parakeet, **0.94x** for Qwen, and **1.00x** for diarization. Step-by-step gains of 5–10% sit inside run-to-run noise and compound. The together-vs-stock measurement is the honest one, so Parakeet's final config drops its layer kernels. Winning kernels are stored in Atlas (`kernels`) with their isolated and end-to-end results.
+
+### Model-level search
+
+- **Qwen3-0.6B:** 8-bit g32 keeping head and down-projection at full precision gave 1.16x (perplexity +0.46%). 8-bit g64 gave 1.32x. The final config, 8-bit g64 on all layers plus a 4096-token prefill, gave **1.67x** at +0.88% perplexity. The agent then declared saturation: it judged the remaining ~30% headroom needs matmul fusion or `mx.compile`, which the config search space doesn't cover. Under an earlier 0.5% budget, 8-bit was rejected at +0.77%.
+- **Parakeet:** 8-bit encoder weights measured 1.09x on their own but lost the paired check against the current best. The 5 s chunk overlap was kept. An earlier standalone speech run found 6-bit encoder weights plus 5 s overlap at 1.22x with WER unchanged; that was measured with the older unpaired method and hasn't been re-verified with paired A/B yet.
+- **Diarization:** fp16 gave 1.02x (paired, within noise) and 4-bit weights were slower. A large custom streaming chunk was **2.09x faster but doubled DER to 70%**, so the quality gate rejected it and memory blocked it afterwards.
+
+### Diarization post-processing sweep
+
+DER on the tuning set (AMI test meetings 1–2, 20 min), speed unchanged at ~480x real-time throughout:
+
+| threshold / merge gap | 0.5 / 0 (stock) | 0.3 / 0 | 0.3 / 0.3 s | 0.3 / 0.6 s | 0.3 / 0.9 s | **0.25 / 1.2 s** | 0.2 / 1.2 s |
+|---|---|---|---|---|---|---|---|
+| DER | 35.6% | 33.2% | 31.5% | 27.3% | 21.2% | **15.5%** | 15.6% |
+
+On **held-out** AMI test meetings 3–4, which were never used for tuning, DER went from **24.6% to 9.2%**. The error breakdown:
+
+- missed speech: 22.6% → 4.4%
+- false alarms: 1.3% → 3.6%
+- speaker confusion: 0.7% → 1.1%
+
+The model had been dropping speakers during short pauses.
+
+### Memory compounding
+
+On Parakeet's decoder LSTM:
+
+- **Cold run:** first candidate 1.16x, best 3.80x after 5 benchmarked candidates.
+- **Next run:** retrieved LSTM skills from Atlas (e.g. `cache_weight_dtype_copies_for_mixed_precision_decode`), opened at 2.28x, and reached **4.61x by candidate 3**.
+- **A third run:** stopped as soon as it reached the 2x target.
+
+### Caveats
+
+- Running three models in parallel corrupted absolute timings: Qwen's baseline read 29 tok/s against ~95 when run alone. That produced a fake 3.41x "win" before paired A/B measurement was added. The final numbers above were measured one model at a time with paired runs.
+- The OpenRouter key hit its spending limit near the end, so the diarization post-processing sweep was driven by the harness rather than the agent. It used the same gates and recording.
+- Evaluation slices are small (40 LibriSpeech utterances, 2+2 AMI meetings, ~2k WikiText tokens). They catch real regressions but can't resolve differences much below ~0.1 WER/DER points.
+
 ## How it works
 
 ```mermaid
@@ -120,7 +176,8 @@ Run models one at a time for trustworthy timings. Parallel runs share the GPU; t
 Dashboard:
 
 ```bash
-cd dashboard && npm install && npm run dev    # http://localhost:3000  (tabs: Architecture, Overview, one per model)
+cd dashboard && npm install && npm run dev    # http://localhost:3000
+# tabs: Results · + Optimize a model (pick model + hardware, start/stop jobs) · Architecture & tools · Overview & memory · one per model
 ```
 
 Without `MONGODB_URI`, Visai falls back to a local JSONL store in `out/localdb`. `uv run visai db push-local` copies it into Atlas later.
