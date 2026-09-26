@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+out/
+runs/
+.cache/
+node_modules/
+dashboard/.next/
+*.tsbuildinfo
+*.bak

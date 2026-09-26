@@ -1,0 +1,18 @@
+{
+  "name": "visai_optimize",
+  "description": "End-to-end model optimization: deployment search + promoted kernels, gated on quality budget.",
+  "entry": "uv run visai optimize --model <model> --quality-budget 0.5%",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "model": {
+        "type": "string"
+      },
+      "quality_budget": {
+        "type": "string"
+      }
+    }
+  },
+  "stdout": "JSON",
+  "stderr": "human-readable table"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "visai_skills",
+  "description": "List learned optimization skills with evidence and confidence.",
+  "entry": "uv run visai skills list",
+  "parameters": {
+    "type": "object",
+    "properties": {}
+  },
+  "stdout": "JSON",
+  "stderr": "human-readable table"
+}

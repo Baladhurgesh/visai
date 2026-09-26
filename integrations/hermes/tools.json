@@ -1,0 +1,74 @@
+{
+  "tools": [
+    {
+      "name": "visai_loop_op_spec",
+      "spec": "tool_spec_visai_loop_op_spec.json",
+      "entry": "visai kernelbench"
+    },
+    {
+      "name": "visai_loop_check_idea",
+      "spec": "tool_spec_visai_loop_check_idea.json",
+      "entry": "visai kernelbench"
+    },
+    {
+      "name": "visai_loop_run_correctness",
+      "spec": "tool_spec_visai_loop_run_correctness.json",
+      "entry": "visai kernelbench"
+    },
+    {
+      "name": "visai_loop_run_benchmark",
+      "spec": "tool_spec_visai_loop_run_benchmark.json",
+      "entry": "visai kernelbench"
+    },
+    {
+      "name": "visai_gate",
+      "spec": "tool_spec_visai_gate.json",
+      "entry": "uv run visai gate <op> <candidate>"
+    },
+    {
+      "name": "visai_bench",
+      "spec": "tool_spec_visai_bench.json",
+      "entry": "uv run visai bench <op> --candidate <candidate>"
+    },
+    {
+      "name": "visai_memory_show",
+      "spec": "tool_spec_visai_memory_show.json",
+      "entry": "uv run visai memory show --target <target>"
+    },
+    {
+      "name": "visai_memory_allowed",
+      "spec": "tool_spec_visai_memory_allowed.json",
+      "entry": "uv run visai memory allowed <idea> --target <target>"
+    },
+    {
+      "name": "visai_skills",
+      "spec": "tool_spec_visai_skills.json",
+      "entry": "uv run visai skills list"
+    },
+    {
+      "name": "visai_profile",
+      "spec": "tool_spec_visai_profile.json",
+      "entry": "uv run visai profile --model <model>"
+    },
+    {
+      "name": "visai_eval",
+      "spec": "tool_spec_visai_eval.json",
+      "entry": "uv run visai eval --model <model> --dataset gsm8k --n 10"
+    },
+    {
+      "name": "visai_kernelbench",
+      "spec": "tool_spec_visai_kernelbench.json",
+      "entry": "uv run visai kernelbench --ops <ops> --budget 10"
+    },
+    {
+      "name": "visai_optimize",
+      "spec": "tool_spec_visai_optimize.json",
+      "entry": "uv run visai optimize --model <model> --quality-budget 0.5%"
+    },
+    {
+      "name": "hermes_visai_agent",
+      "spec": "SKILL.md",
+      "entry": "hermes chat -s visai-opt"
+    }
+  ]
+}

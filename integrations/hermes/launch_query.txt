@@ -1,0 +1,18 @@
+Load the visai-opt skill and follow it exactly. Working directory is this repo root. Use `uv run visai ...`.
+
+This is a multi-trial loop. Do not stop after one miss.
+
+Start with: uv run visai memory show --target "<target>" and read the rendered LESSONS.md.
+
+Goal: a genuine speedup for the target op / model on this hardware. Genuine = Gate 1 pass (hidden inputs),
+>= 3% faster than the realistic runtime baseline on TWO benchmark runs, task quality within budget.
+
+Run 10 candidates (or stop early only on a confirmed genuine win). After every miss: reason it, record,
+check `uv run visai memory allowed "<next idea>"`, pick a different class, next candidate.
+1. Read lessons, skills (uv run visai skills list), the op contract.
+2. Write candidates/<label>.py.
+3. uv run visai gate <op> candidates/<label>.py. Fix until pass. Never benchmark a fail.
+4. uv run visai bench <op> --candidate candidates/<label>.py (twice).
+5. If genuine win: keep, stop, report. Else reason the miss, check allowed, go to 2.
+
+Finish with a table of all trials (label, class, gate1, speedup, confirmed, outcome, keep/revert).

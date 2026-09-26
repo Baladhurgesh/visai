@@ -1,0 +1,21 @@
+{
+  "name": "visai_bench",
+  "description": "Microbenchmark reference, realistic runtime baseline, and a candidate across bench shapes.",
+  "entry": "uv run visai bench <op> --candidate <candidate>",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "op": {
+        "type": "string"
+      },
+      "candidate": {
+        "type": "string"
+      },
+      "dtype": {
+        "type": "string"
+      }
+    }
+  },
+  "stdout": "JSON",
+  "stderr": "human-readable table"
+}

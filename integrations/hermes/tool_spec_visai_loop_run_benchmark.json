@@ -1,0 +1,17 @@
+{
+  "name": "visai_loop_run_benchmark",
+  "description": "Benchmark a candidate that passed Gate 1, then re-run to confirm (the gate requires two passes).",
+  "parameters": {
+    "properties": {
+      "label": {
+        "description": "the label that passed run_correctness.",
+        "type": "string"
+      }
+    },
+    "required": [
+      "label"
+    ],
+    "type": "object"
+  },
+  "entry": "in-loop Strands tool (visai kernelbench)"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "visai_gate",
+  "description": "Gate 1: correctness of a candidate kernel vs the trusted reference on seeded + hidden inputs.",
+  "entry": "uv run visai gate <op> <candidate>",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "op": {
+        "type": "string"
+      },
+      "candidate": {
+        "type": "string"
+      },
+      "dtype": {
+        "type": "string"
+      }
+    }
+  },
+  "stdout": "JSON",
+  "stderr": "human-readable table"
+}

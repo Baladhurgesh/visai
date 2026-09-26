@@ -1,0 +1,32 @@
+{
+  "name": "visai_loop_run_correctness",
+  "description": "Write a candidate and run Gate 1 (correctness vs the trusted reference on seeded AND hidden inputs).\n\nHidden shapes/distributions are never revealed; you only learn which kinds failed.\nRe-submit the same label to repair; a new label is a new idea (checked against do-not-repeat).",
+  "parameters": {
+    "properties": {
+      "label": {
+        "description": "snake_case file stem, unique per idea, e.g. add_rmsnorm_simd_v1.",
+        "type": "string"
+      },
+      "idea_class": {
+        "description": "idea class (fusion, fewer_launches, vectorize, reduction_strategy, tiling, precision, launch_config_tune, other).",
+        "type": "string"
+      },
+      "idea": {
+        "description": "one-paragraph description of the change and why it should be faster.",
+        "type": "string"
+      },
+      "source": {
+        "description": "full Python module defining kernel(...) with exactly the op signature.",
+        "type": "string"
+      }
+    },
+    "required": [
+      "label",
+      "idea_class",
+      "idea",
+      "source"
+    ],
+    "type": "object"
+  },
+  "entry": "in-loop Strands tool (visai kernelbench)"
+}

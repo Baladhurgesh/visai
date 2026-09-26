@@ -1,0 +1,18 @@
+{
+  "name": "visai_kernelbench",
+  "description": "Run Visai's own self-improving kernel loop (Strands writer + reflect agents).",
+  "entry": "uv run visai kernelbench --ops <ops> --budget 10",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "ops": {
+        "type": "string"
+      },
+      "budget": {
+        "type": "integer"
+      }
+    }
+  },
+  "stdout": "JSON",
+  "stderr": "human-readable table"
+}

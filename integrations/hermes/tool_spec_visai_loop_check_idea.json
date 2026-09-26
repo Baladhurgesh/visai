@@ -1,0 +1,17 @@
+{
+  "name": "visai_loop_check_idea",
+  "description": "Check an idea against persistent do-not-repeat memory before spending a candidate on it.",
+  "parameters": {
+    "properties": {
+      "idea": {
+        "description": "One sentence: label, idea class, and the concrete change.",
+        "type": "string"
+      }
+    },
+    "required": [
+      "idea"
+    ],
+    "type": "object"
+  },
+  "entry": "in-loop Strands tool (visai kernelbench)"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "visai_profile",
+  "description": "ProfileBrief (op-family hotspots + targets) for an MLX model decode step.",
+  "entry": "uv run visai profile --model <model>",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "model": {
+        "type": "string"
+      }
+    }
+  },
+  "stdout": "JSON",
+  "stderr": "human-readable table"
+}

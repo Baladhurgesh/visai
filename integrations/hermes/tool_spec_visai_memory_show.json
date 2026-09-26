@@ -1,0 +1,15 @@
+{
+  "name": "visai_memory_show",
+  "description": "Rendered LESSONS.md, recent trials, latest reflection, and do-not-repeat list from Atlas.",
+  "entry": "uv run visai memory show --target <target>",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "target": {
+        "type": "string"
+      }
+    }
+  },
+  "stdout": "JSON",
+  "stderr": "human-readable table"
+}

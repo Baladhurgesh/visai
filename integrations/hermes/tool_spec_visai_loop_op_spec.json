@@ -1,0 +1,9 @@
+{
+  "name": "visai_loop_op_spec",
+  "description": "Return the op contract: signature, reference and runtime sources, visible shapes, bench shapes.",
+  "parameters": {
+    "properties": {},
+    "type": "object"
+  },
+  "entry": "in-loop Strands tool (visai kernelbench)"
+}

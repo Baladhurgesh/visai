@@ -1,0 +1,21 @@
+{
+  "name": "visai_eval",
+  "description": "Gate 2 frozen task eval (GSM8K / jsonl / HF dataset) with decode tok/s.",
+  "entry": "uv run visai eval --model <model> --dataset gsm8k --n 10",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "model": {
+        "type": "string"
+      },
+      "dataset": {
+        "type": "string"
+      },
+      "n": {
+        "type": "integer"
+      }
+    }
+  },
+  "stdout": "JSON",
+  "stderr": "human-readable table"
+}
